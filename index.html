@@ -55,6 +55,21 @@
             backdrop-filter: blur(10px);
         }
 
+        .refresh-timer {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
         .theme-toggle:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
@@ -107,6 +122,10 @@
     </style>
 </head>
 <body>
+    <div class="refresh-timer">
+        Next refresh in: <span id="countdown">5:00</span>
+    </div>
+
     <button class="theme-toggle" onclick="toggleTheme()">
         🌓 Toggle Theme
     </button>
@@ -163,7 +182,30 @@
             document.body.classList.toggle('light-mode');
         }
 
-        // Auto refresh iframes every 5 minutes
+        // Countdown timer functionality
+        function updateCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            let timeLeft = 300; // 5 minutes in seconds
+
+            function updateTimer() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                countdownElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft === 0) {
+                    refreshIframes();
+                    timeLeft = 300; // Reset timer
+                } else {
+                    timeLeft--;
+                }
+            }
+
+            // Update timer immediately and then every second
+            updateTimer();
+            return setInterval(updateTimer, 1000);
+        }
+
+        // Auto refresh iframes
         function refreshIframes() {
             const iframes = document.querySelectorAll('iframe');
             iframes.forEach(iframe => {
@@ -171,8 +213,8 @@
             });
         }
 
-        // Set auto refresh interval (5 minutes = 300000 milliseconds)
-        setInterval(refreshIframes, 300000);
+        // Start the countdown timer
+        updateCountdown();
     </script>
 </body>
 </html>
